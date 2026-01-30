@@ -9,7 +9,7 @@ import traceback
 app = Flask(__name__)
 CORS(app)
 
-API_KEY = "AIzaSyBQCWfNkClY6nXpKNCBsGGJx3ajUBsW8XQ"  # Replace with your actual API key
+API_KEY = " "  # Replace with your actual API key
 
 def extract_pdf_text(pdf_file):
     try:
@@ -197,4 +197,5 @@ def generate_custom_question():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+
     app.run(debug=True)

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - AI Question Paper Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("vishwakarma-institute-of-technology-vit-pune.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+        .bg-semi-transparent {
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center">
+    <div class="absolute top-4 right-4">
+        <a href="about.html" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+            About
+        </a>
+    </div>
+
+    <div class="container mx-auto text-center bg-semi-transparent p-10 rounded-xl shadow-2xl w-11/12 max-w-md">
+        <!-- College Logo -->
+        <img src="logo1.png" alt="VIT Clg logo" class="mx-auto w-48 h-auto mb-6">
+        
+        <!-- College Name -->
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">
+            Vishwakarma Institute of Technology, Pune
+        </h1>
+        
+        <!-- Welcome Message -->
+        <p class="text-xl text-gray-600 mb-8">
+            Welcome to the AI Question Paper Generator
+        </p>
+        
+        <!-- Start Button -->
+        <button 
+            onclick="goToMainPage()" 
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105"
+        >
+            Start
+        </button>
+    </div>
+
+    <script>
+        function goToMainPage() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

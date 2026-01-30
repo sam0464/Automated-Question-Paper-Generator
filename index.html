@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Question Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 500px;
+    }
+    .selection-box {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .option-card {
+      flex: 1;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .option-card:hover {
+      background-color: #f0f0f0;
+      border-color: #28a745;
+    }
+    .option-card.selected {
+      background-color: #28a745;
+      color: white;
+    }
+    .generate-section {
+      display: none;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .input-group input, .input-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #questions {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="selection-box">
+      <div class="option-card" data-option="topic">
+        <h3>Create by Topic</h3>
+        <p>Generate questions using predefined parameters</p>
+      </div>
+      <div class="option-card" data-option="choice">
+        <h3>Create by Choice</h3>
+        <p>Custom question generation with flexible inputs</p>
+      </div>
+      <div class="option-card" data-option="paper">
+        <h3>Generate Paper</h3>
+        <p>Generate a full question paper by entering a topic</p>
+      </div>
+    </div>
+
+    <!-- Create by Topic Section -->
+    <div id="topic-section" class="generate-section">
+      <div class="input-group">
+        <label for="topic">Topic:</label>
+        <input type="text" id="topic" placeholder="Enter topic">
+      </div>
+      <div class="input-group">
+        <label for="no_of_questions">Number of Questions:</label>
+        <input type="number" id="no_of_questions" min="1" max="20">
+      </div>
+      <div class="input-group">
+        <label for="difficulty">Difficulty:</label>
+        <select id="difficulty">
+          <option value="Easy">Easy</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="question_type">Question Type:</label>
+        <select id="question_type">
+          <option value="Objective">Objective</option>
+          <option value="Subjective">Subjective</option>
+        </select>
+      </div>
+      <button class="submit-btn" onclick="generateTopicQuestions()">Generate Questions</button>
+    </div>
+
+    <!-- Create by Choice Section -->
+    <div id="choice-section" class="generate-section">
+      <div class="input-group">
+        <label>PDF Upload (Optional):</label>
+        <input type="file" id="pdf-upload" accept=".pdf">
+      </div>
+      <div class="input-group">
+        <label>Detailed Prompt:</label>
+        <textarea id="custom-prompt" rows="5" placeholder="Provide detailed instructions for question generation..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="generateChoiceQuestions()">Generate Questions</button>
+    </div>
+
+    <!-- Generate Paper Section -->
+    <div id="paper-section" class="generate-section">
+      <div class="input-group">
+        <label for="paper-topic">Topic:</label>
+        <input type="text" id="paper-topic" placeholder="Enter topic for the question paper">
+      </div>
+      <div class="input-group">
+        <label for="paper-no_of_questions">Number of Questions:</label>
+        <input type="number" id="paper-no_of_questions" min="1" max="50">
+      </div>
+      <button class="submit-btn" onclick="generatePaper()">Generate Paper</button>
+    </div>
+
+    <!-- Questions Display Section -->
+    <div id="questions"></div>
+  </div>
+
+  <script>
+    // Handle option card selection
+    document.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        document.getElementById('topic-section').style.display = 'none';
+        document.getElementById('choice-section').style.display = 'none';
+        document.getElementById('paper-section').style.display = 'none';
+        
+        const option = this.getAttribute('data-option');
+        document.getElementById(`${option}-section`).style.display = 'block';
+      });
+    });
+
+    // Generate questions by topic
+    async function generateTopicQuestions() {
+      const topic = document.getElementById('topic').value;
+      const no_of_questions = document.getElementById('no_of_questions').value;
+      const difficulty = document.getElementById('difficulty').value;
+      const question_type = document.getElementById('question_type').value;
+
+      const response = await fetch('http://127.0.0.1:5000/generate_question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "topic": topic,
+          "no_of_questions": parseInt(no_of_questions),
+          "difficulty": difficulty,
+          "question_type": question_type
+        })
+      });
+
+      const data = await response.json();
+      renderQuestions(data, question_type);
+    }
+
+    // Generate questions by choice
+    async function generateChoiceQuestions() {
+      const pdfFile = document.getElementById('pdf-upload').files[0];
+      const prompt = document.getElementById('custom-prompt').value;
+
+      if (!prompt) {
+        alert('Please provide a prompt for question generation');
+        return;
+      }
+
+      const formData = new FormData();
+      if (pdfFile) formData.append('pdf', pdfFile);
+      formData.append('prompt', prompt);
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/generate_custom_question', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        renderQuestions(data);
+      } catch (error) {
+        console.error('Generation Error:', error);
+        alert('Failed to generate questions. Check console for details.');
+      }
+    }
+
+    // Generate a full question paper
+    async function generatePaper() {
+      const topic = document.getElementById('paper-topic').value;
+      const no_of_questions = document.getElementById('paper-no_of_questions').value;
+
+      if (!topic || !no_of_questions) {
+        alert('Please enter a topic and number of questions');
+        return;
+      }
+
+      const response = await fetch('http://127.0.0.1:5000/generate_paper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "topic": topic,
+          "no_of_questions": parseInt(no_of_questions)
+        })
+      });
+
+      const data = await response.json();
+      renderQuestions(data);
+    }
+
+    // Render questions
+    function renderQuestions(data, question_type) {
+      const questionsContainer = document.getElementById('questions');
+      questionsContainer.innerHTML = '';
+
+      data.forEach((item) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+
+        const questionText = document.createElement('p');
+        questionText.textContent = `Q${item.qno}: ${item.question}`;
+        questionDiv.appendChild(questionText);
+
+        if (question_type === "Objective" && item.options) {
+          const optionsDiv = document.createElement('div');
+          optionsDiv.classList.add('options');
+          item.options.forEach((option) => {
+            const optionLabel = document.createElement('label');
+            const optionInput = document.createElement('input');
+            optionInput.type = 'radio';
+            optionInput.name = `question_${item.qno}`;
+            optionInput.value = option;
+            optionLabel.appendChild(optionInput);
+            optionLabel.appendChild(document.createTextNode(option));
+            optionsDiv.appendChild(optionLabel);
+          });
+          questionDiv.appendChild(optionsDiv);
+        }
+
+        questionsContainer.appendChild(questionDiv);
+      });
+    }
+  </script>
+</body>
+</html>
